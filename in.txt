@@ -1,0 +1,14 @@
+3
+23.5, 21000,
+16,0,
+0,0, 12,0, 12,1, 7,1, 6.5,1.5, 6.5,30, 7,30.5, 15,30.5, 15,31.5, -3,31.5, -3,30.5, 5,30.5, 5.5,30, 5.5,1.5, 5,1, 0,1
+0,0,0
+
+Podatke se vnaša samo za polovico simetričnega prereza (pazi na armaturo na sredini ker se steje dvakrat)
+
+i                               (1-el, 2-pl, 3-el & pl)
+fy,e                            fy, E
+ns,ned                          stevilo vozlisc, stevilo obteznih primerov
+x1,y1,x2,y2,...                 koordinate vozlisc prereza
+n1,mx1,my1,n2,mx2,my2,...       obtezni primeri
+
