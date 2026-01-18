@@ -26,6 +26,24 @@ module rutine
         a = a + x*(xy(1,n)*xy(2,1)-xy(1,1)*xy(2,n))/(1+deg)/(2+deg)
     end subroutine
 
+    subroutine area_ny1x(xy,n,a,deg)
+        integer :: n,deg,i,j
+        real(dp) :: a, xy(:,:),x
+
+        do i=1,n-1
+            x = 0.0_dp
+            do j= 0,deg
+                x = x + xy(2,i)**(deg-j)*xy(2,i+1)**(j)*(xy(1,i)*(deg-j+1)+xy(1,i+1)*(j+1))
+            end do
+            a = a + x*(xy(1,i)*xy(2,i+1)-xy(1,i+1)*xy(2,i))/((1+deg)*(2+deg)*(3+deg))
+        end do
+        x = 0.0_dp
+        do j= 0,deg
+            x = x + xy(2,n)**(deg-j)*xy(2,1)**(j)*(xy(1,1)*(deg-j+1)+xy(1,n)*(j+1))
+        end do
+        a = a + x*(xy(1,n)*xy(2,1)-xy(1,1)*xy(2,n))/((1+deg)*(2+deg)*(3+deg))
+    end subroutine
+
 
 
     !Zapise potrebne kolicine v datoteko out.js
@@ -38,7 +56,7 @@ module rutine
         integer :: n,nrd,an
         real(dp) :: xy(:,:),rd(:,:)
 
-        open (unit = 1,file = "mapa/out.js",status = "old")
+        open (unit = 1,file = "out.js",status = "old")
         write(1,*) "analiza = ", an
         write(1,*) "const sec_coor = `"
         do i=1,nv

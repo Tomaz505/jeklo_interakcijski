@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+     <!--   <meta http-equiv="refresh" content="10">  -->
+    <title>Analiza jeklenega prereza</title>
+    <script src="https://cdn.plot.ly/plotly-3.3.1.js"></script>
+    <script src="out.js"></script>
+    <style> .narrow-text { max-width: 800px; line-height: 1.5; margin-bottom: 1em; } </style>
+</head>
+
+
+<body>
+
+
+
+<script>
+<div word-wrap= "break-word"; width= "1500px";></div>
+</script>
+
+<h2>Analiza jeklenega prereza</h2>
+<p class = "narrow-text">
+Možna je obravnava napetosti, ki ostanejo znotraj meje elastičnosti ter polno plastificiranega prereza.
+V datoteko in.txt vnesemo željene podatke, kjer se moramo strogo držati predpisane strukture.
+Program je napisan v jeziku Fortran zato je potrebno programu povedati koliko vozlišč in obtežnih primerov bomo vnesli, da lahko progra alocira potreben spomin.
+Ko smo vnesli željene podatke odpremo datoteko main.exe.
+Račun je zelo hiter, zato lahko po tem ko odpremo datoteko osvežimo brskalnik kjer je odprt prikaz.html.
+</p>
+
+
+<div id="chart2" style="width:1200px;height:800px;"></div>
+
+
+<div id="chart" style="width:1200px;height:800px;"></div>
+
+
+
+
+<script>
+
+function makeTicks(arr,n) {
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    const step = (max - min) / n;
+    const ticks = [];
+    for (let i = 0; i <= n; i++) {
+        ticks.push(min + i * step);}
+    return ticks;}
+function expandRange(arr, factor = 1.1) {
+    const min = Math.min(...arr);
+    const max = Math.max(...arr);
+    const center = (min + max) / 2;
+    const half = (max - min) / 2 * factor;
+    return [center - half, center + half];
+}
+
+
+
+const lines = sec_coor.trim().split(/\r?\n/);
+const xData = [];
+const yData = [];
+lines.forEach(line => {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length === 2) {
+        xData.push(parseFloat(parts[0]));
+        yData.push(parseFloat(parts[1]));
+    }
+});
+
+
+//Branje podatkov diagrama
+const lines_intr = intr.trim().split(/\r?\n/);
+
+let nrdel = [], mrd1el = [], mrd2el = []; let nrdpl = [], mrd1pl = [], mrd2pl = [];
+
+if (analiza == 1 || analiza ==2 ) {
+
+
+lines_intr.forEach(line => {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length === 3) {
+        nrdel.push(parseFloat(parts[0]));
+        mrd1el.push(parseFloat(parts[1]));
+        mrd2el.push(parseFloat(parts[2]));
+
+    }
+});
+} else {
+
+lines_intr.forEach(line => {
+    const parts = line.trim().split(/\s+/);
+    if (parts.length === 6) {
+        nrdel.push(parseFloat(parts[0]));
+        mrd1el.push(parseFloat(parts[1]));
+        mrd2el.push(parseFloat(parts[2]));
+        nrdpl.push(parseFloat(parts[3]));
+        mrd1pl.push(parseFloat(parts[4]));
+        mrd2pl.push(parseFloat(parts[5]));
+
+    }
+});
+}
+
+console.log(nrdpl)
+console.log(nrdel)
+
+// Plotly traces
+var trace1 = {
+    x: xData,
+    y: yData,
+    mode: 'lines',
+    name: 'Prerez',
+    line: { width: 2, color: 'black' },
+    showlegend:false
+};
+let lab = "a"
+var trace2 = {x:[0,1],y:[1,0]};
+var  trace3 = {x:[0,1],y:[1,0]};
+
+
+if (analiza == 1 || analiza ==2) {
+if ( analiza == 1){
+lab = "El";
+} else {
+lab = "Pl";};
+
+trace2 = {
+    x: mrd1el,
+    y: mrd2el,
+    z: nrdel,
+    xaxis: 'x2',
+    yaxis: 'y2',
+    zaxis: 'z2',
+    mode: 'markers',
+    type: 'scatter3d',
+    name : lab,
+    marker: { size: 1.5 ,color:'skyblue',opacity: 0.13},
+    showlegend : true,
+    projection:{x:{show: true, opacity: 0.07},y:{show: true, opacity: 0.07},z:{show: true, opacity: 0.07}},
+    layout: {xaxis2: {scaleanchor: 'y',scaleratio:1},zaxis2:{scaleratio:1}}
+};
+
+var layout2 = {
+    scene: {
+        xaxis: {range: expandRange(mrd1el,factor = 1.4),
+            tickvals: makeTicks(mrd1el,4),
+            ticktext: makeTicks(mrd1el,4).map(v => v.toFixed(2))
+        },
+        yaxis: {range: expandRange(mrd2el,factor = 1.4),
+            tickvals: makeTicks(mrd2el,4),
+            ticktext: makeTicks(mrd2el,4).map(v => v.toFixed(2))
+        },
+        zaxis: {range: expandRange(nrdel,factor = 1.4),
+            tickvals: makeTicks(nrdel,4),
+            ticktext: makeTicks(nrdel,4).map(v => v.toFixed(2))
+        }
+    },
+    updatemenus: [{
+        type: "buttons",
+        direction: "left",
+        x: 0.75,
+        y: 1.15,
+        buttons: [
+            {
+                label: "Diagram+Projekcije",
+                method: "restyle",
+                args: [
+                    {
+                        "marker.opacity": 0.13,
+                        "projection.x.opacity": 0.07,
+                        "projection.y.opacity": 0.07,
+                        "projection.z.opacity": 0.07,
+                    },
+                    [0]
+                ]
+            },
+            {
+                label: "Projekcije",
+                method: "restyle",
+                args: [
+                    {
+                        "marker.opacity": 0,
+                        "projection.x.opacity": 0.3,
+                        "projection.y.opacity": 0.3,
+                        "projection.z.opacity": 0.3
+                    },
+                    [0]
+                ]
+            },
+            {
+                label: "Diagram",
+                method: "restyle",
+                args: [
+                    {   "marker.opacity": 0.3,
+                        "projection.x.opacity": 0.0,
+                        "projection.y.opacity": 0.0,
+                        "projection.z.opacity": 0.0},
+                    [0]
+                ]
+            }
+        ]
+    }]
+};
+} else {
+
+var trace2 = {
+    x: mrd1el,
+    y: mrd2el,
+    z: nrdel,
+    xaxis: 'x2',
+    yaxis: 'y2',
+    zaxis: 'z2',
+    mode: 'markers',
+    type: 'scatter3d',
+    name : "El",
+    marker: { size: 1.5 ,color:'skyblue',opacity: 0.3,sizeref: 3},
+    showlegend : true,
+    projection:{x:{show: true, opacity: 0.07},y:{show: true, opacity: 0.07},z:{show: true, opacity: 0.07}},
+    layout: {xaxis2: {scaleanchor: 'y',scaleratio:1},zaxis2:{scaleratio:1}}
+};
+
+var trace3 = {
+    x: mrd1pl,
+    y: mrd2pl,
+    z: nrdpl,
+    xaxis: 'x2',
+    yaxis: 'y2',
+    zaxis: 'z2',
+    mode: 'markers',
+    type: 'scatter3d',
+    name : "Pl",
+    marker: { size: 1.75 ,color:'orange',opacity: 0.3,sizeref:3.5},
+    showlegend : true,
+    projection:{x:{show: true, opacity: 0.07},y:{show: true, opacity: 0.07},z:{show: true, opacity: 0.07}},
+    layout: {xaxis2: {scaleanchor: 'y',scaleratio:1},zaxis2:{scaleratio:1}}
+};
+
+var layout2 = {
+    scene: {
+        xaxis: {range: expandRange(mrd1pl,factor = 1.4),
+            tickvals: makeTicks(mrd1pl,1).concat(makeTicks(mrd1el,1).concat([0])),title: {text: 'MRdx'},
+            //ticktext: makeTicks(mrd1pl,4).map(v => v.toFixed(2)),
+        },
+        yaxis: {range: expandRange(mrd2pl,factor = 1.4),
+            tickvals: makeTicks(mrd2pl,1).concat(makeTicks(mrd2el,1).concat([0])),title: {text: 'MRdy'},
+            //ticktext: makeTicks(mrd2pl,4).map(v => v.toFixed(2)),
+
+            },
+        zaxis: {range: expandRange(nrdpl,factor = 1.4),
+            tickvals: makeTicks(nrdpl,1).concat(makeTicks(nrdel,1).concat([0])),title: {text: 'NRd'},
+            //ticktext: makeTicks(nrdpl,4).map(v => v.toFixed(2)),
+
+        },
+        aspectratio: {
+        x: 1.6,   // make x-axis longer or shorter
+        y: 1.6, // stretch y-axis
+        z: 1  // compress z-axis
+    }
+    },
+    legend: {itemsizing: "constant"},
+
+    updatemenus: [{
+        type: "buttons",
+        direction: "left",
+        x: 0.75,
+        y: 1.15,
+        buttons: [
+            {  label: "Diagram+Projekcije", method: "restyle", args: [
+                    {
+                        "marker.opacity": 0.3,
+                        "projection.x.opacity": 0.07,
+                        "projection.y.opacity": 0.07,
+                        "projection.z.opacity": 0.07,
+                    },
+                    [0,1]
+                ]
+            },
+            {
+                label: "Projekcije",
+                method: "restyle",
+                args: [
+                    {
+                        "marker.opacity": 0,
+                        "projection.x.opacity": 0.2,
+                        "projection.y.opacity": 0.2,
+                        "projection.z.opacity": 0.2
+                    },
+                    [0,1]
+                ]
+            },
+            {
+                label: "Diagram",
+                method: "restyle",
+                args: [
+                    {   "marker.opacity": 0.3,
+                        "projection.x.opacity": 0.0,
+                        "projection.y.opacity": 0.0,
+                        "projection.z.opacity": 0.0},
+                    [0,1]
+                ]
+            }
+        ]
+    }]
+};
+
+
+}
+
+
+
+var layout = {
+    xaxis: { title: 'x',scaleratio: 1,scaleanchor: 'y', tickmode: 'array', tickvals: xData,tickangle: -90, title: {text: 'X ->'},},
+    yaxis: { title: 'y',scaleratio: 1.5,  tickmode: 'array', tickvals: yData ,title: {text: 'Y'},},
+    margin:{ t: 20 },
+    //grid:  {rows:1,columns:2, pattern: 'independent'}
+};
+
+
+
+// Render
+Plotly.newPlot('chart',[trace1], layout);
+if (analiza ==2 || analiza == 1){
+Plotly.newPlot('chart2', [trace2],layout2);
+} else {
+Plotly.newPlot('chart2', [trace2,trace3],layout2);
+
+}
+
+</script>
+
+
+
+</body>
+</html>
